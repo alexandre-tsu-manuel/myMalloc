@@ -1,23 +1,25 @@
-CC=clang
-CFLAGSTEST= -Wall -Werror -Wextra -std=c99
-CFLAGS= -Wall -Wextra -std=c99 -fno-builtin -O0 -g -fPIC
-OUT=output
+CC ?= clang
+CFLAGS = -Wall -Werror -Wextra -std=c99
+LDFLAGS = $(CFLAGS)
+LDFLAGS_LIB = $(CFLAGS) -fno-builtin -shared -O0 -g -fPIC
+SRC_LIB = malloc.c
+OBJ_LIB = $(SRC_LIB:%=%.o)
+SRC = $(LIB_SRC) main.c
+OBJ = $(SRC:%=%.o)
+LIB = libmalloc.so
+BIN = test
 
-SRCFILES=$(wildcard *.c)
+all: $(BIN)
+$(BIN): $(OBJ)
+	$(CC) $(LDFLAGS) $(OBJ) -o $(OUT)
 
-all: main
-
-main:
-	$(CC) $(SRCFILES) -o $(OUT) $(CFLAGSTEST)
-
-libmalloc.so: malloc.o
-	$(CC) -shared -o libmalloc.so malloc.o
+library: $(LIB)
+$(LIB): $(OBJ_LIB)
+	$(CC) $(LDFLAGS_LIB) $(OBJ_LIB) -o $(LIB)
 
 clean:
-	@rm -f *~ *.o *#
-	@rm -f $(OUT)
-	@rm -f libmalloc.so
+	@rm -f $(OBJ) $(BIN) $(LIB)
 	@echo "project cleaned"
 
 run:
-	@./$(OUT)
+	@./$(BIN)
