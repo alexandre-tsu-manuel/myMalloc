@@ -1,25 +1,23 @@
-CC ?= clang
-CFLAGS = -Wall -Werror -Wextra -std=c99
-LDFLAGS = $(CFLAGS)
-LDFLAGS_LIB = $(CFLAGS) -fno-builtin -shared -O0 -g -fPIC
-SRC_LIB = malloc.c
-OBJ_LIB = $(SRC_LIB:%=%.o)
-SRC = $(LIB_SRC) main.c
-OBJ = $(SRC:%=%.o)
-LIB = libmalloc.so
-BIN = test
+CC?=gcc
+CFLAGS=-std=c99 -pedantic -Wall -Wextra -Werror
+LIB=libmalloc.so
+TEST_BIN=test
+TEST_FILES=main
+TEST_OBJ=$(TEST_FILES:%=%.o)
+SRC_FILES=malloc
+SRC_OBJ=$(SRC_FILES:%=%.o)
 
-all: $(BIN)
-$(BIN): $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ) -o $(OUT)
+all: $(LIB)
 
-library: $(LIB)
-$(LIB): $(OBJ_LIB)
-	$(CC) $(LDFLAGS_LIB) $(OBJ_LIB) -o $(LIB)
+$(LIB): CFLAGS+=-fno-builtin -fPIC
+$(LIB): $(SRC_OBJ)
+	$(CC) $(SRC_OBJ) -o $@ -shared $(LDFLAGS)
+
+$(TEST_BIN): $(TEST_OBJ)
+	$(CC) $(TEST_OBJ) -o $@ $(LDFLAGS)
+
+check: $(LIB) $(TEST_BIN)
+	LD_PRELOAD=./$(LIB) ./$(TEST_BIN)
 
 clean:
-	@rm -f $(OBJ) $(BIN) $(LIB)
-	@echo "project cleaned"
-
-run:
-	@./$(BIN)
+	rm -f *.o $(TEST_BIN) $(LIB)
