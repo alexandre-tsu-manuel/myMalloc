@@ -6,12 +6,13 @@ TEST_FILES=main
 TEST_OBJ=$(TEST_FILES:%=%.o)
 SRC_FILES=malloc
 SRC_OBJ=$(SRC_FILES:%=%.o)
+LDLIBS=-shared
 
 all: $(LIB)
 
 $(LIB): CFLAGS+=-fno-builtin -fPIC
 $(LIB): $(SRC_OBJ)
-	$(CC) $(SRC_OBJ) -o $@ -shared $(LDFLAGS)
+	$(CC) $(SRC_OBJ) -o $@ $(LDLIBS)
 
 $(TEST_BIN): $(TEST_OBJ)
 	$(CC) $(TEST_OBJ) -o $@ $(LDFLAGS)
